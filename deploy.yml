@@ -3,6 +3,7 @@
   hosts:
     - servers
     - localhost
+
   remote_user: vagrant
   vars:
     ansible_password: !vault |
@@ -23,7 +24,9 @@
       31326231303661336562636630613236656236363966393663336436306364663130333030396338
       61353230663437643438396463663132343935653136356535353964633434373533666363656565
       38353932333566313262653065383065396431643630363163393133303964333463
+
   become: true
+
   tasks:
     - name: Create the ansible user on the managed hosts
       user: &createuser
@@ -31,7 +34,7 @@
         state: present
         create_home: true
       when: '"servers" in group_names'
-    
+
     - block:
       - name: Create the ansible user on the local machine
         user:
@@ -43,6 +46,7 @@
         shell: /bin/cat /home/ansible/.ssh/id_rsa.pub
         become_user: ansible
         register: ssh_key
+
       when: inventory_hostname == 'localhost'
         
     - name: Create the file in sudoers.d for the ansible user
