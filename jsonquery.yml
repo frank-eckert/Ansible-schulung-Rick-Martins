@@ -1,0 +1,37 @@
+---
+- name: Play to demonstrate simple usage of jsonquery filter
+  hosts:
+    - localhost
+  vars:
+    api: https://jsonplaceholder.typicode.com/posts
+    find_title: "json[?id==`{{ id }}`].title"
+  vars_prompt:
+    name: id
+    prompt: Enter the id number of the post title to print
+    unsafe: true
+
+  tasks:
+    - name: Grab the jsom object from the api and store it in posts
+      uri: 
+        url: "{{ api }}"
+        method: GET
+        validate_certs: false
+        return_content: false
+      register: posts
+
+    - name: Print out the posts we grabbed from the api
+      debug:
+        msg: "{{ posts }}"
+
+    - name: Print out all of the title fields in the object returned
+      debug:
+        msg: "{{ posts }}"
+      loop: "{{ posts |json_query('json[*].title') }}"
+
+    - name: Use the jsonquery filter to extract the specific piece of data we want from the returned object
+      debug:
+        msg: "The title of the post with the id {{ id }} is {{ posts | json_query(find_title) | first}}"
+   
+    - name: Try to cala with ip addresses
+      debug:
+        msg: "IP: {{ '192.168.111.1/24' |ipaddr('address') + 1 }}"
